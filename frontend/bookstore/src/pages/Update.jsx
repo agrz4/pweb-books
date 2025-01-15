@@ -1,6 +1,6 @@
-import axios from "axios";
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Update = () => {
   const [book, setBook] = useState({
@@ -9,60 +9,67 @@ const Update = () => {
     price: null,
     cover: "",
   });
-  const [error,setError] = useState(false)
-
-  const location = useLocation();
+  const [file, setFile] = useState(null);
+  
   const navigate = useNavigate();
-
+  const location = useLocation();
   const bookId = location.pathname.split("/")[2];
 
   const handleChange = (e) => {
     setBook((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
   const handleClick = async (e) => {
     e.preventDefault();
-
     try {
-      await axios.put(`http://localhost:8800/books/${bookId}`, book);
+      const formData = new FormData();
+      formData.append("title", book.title);
+      formData.append("desc", book.desc);
+      formData.append("price", book.price);
+      if (file) {
+        formData.append("cover", file);
+      } else {
+        formData.append("cover", book.cover); // Kirim cover lama jika tidak ada file baru
+      }
+
+      await axios.put(`http://localhost:8800/books/${bookId}`, formData);
       navigate("/");
     } catch (err) {
       console.log(err);
-      setError(true);
     }
   };
 
   return (
     <div className="form">
-      <h1>Update the Book</h1>
+      <h1>Update Book</h1>
       <input
         type="text"
-        placeholder="Book title"
+        placeholder="Title"
         name="title"
         onChange={handleChange}
       />
-      <textarea
-        rows={5}
+      <input
         type="text"
-        placeholder="Book desc"
+        placeholder="Description"
         name="desc"
         onChange={handleChange}
       />
       <input
         type="number"
-        placeholder="Book price"
+        placeholder="Price"
         name="price"
         onChange={handleChange}
       />
       <input
-        type="text"
-        placeholder="Book cover"
+        type="file"
         name="cover"
-        onChange={handleChange}
+        onChange={handleFileChange}
       />
       <button onClick={handleClick}>Update</button>
-      {error && "Something went wrong!"}
-      <Link to="/">See all books</Link>
     </div>
   );
 };

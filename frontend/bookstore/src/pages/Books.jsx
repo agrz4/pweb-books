@@ -31,11 +31,11 @@ const Books = () => {
 
   return (
     <div>
-      <h1>Lama Book Shop</h1>
+      <h1>Pweb Book Shop</h1>
       <div className="books">
         {books.map((book) => (
           <div key={book.id} className="book">
-            <img src={book.cover} alt="" />
+            <img src={`http://localhost:8800${book.cover}`} alt={book.title} />
             <h2>{book.title}</h2>
             <p>{book.desc}</p>
             <span>${book.price}</span>

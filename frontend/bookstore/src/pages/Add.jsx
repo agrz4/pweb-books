@@ -9,6 +9,7 @@ const Add = () => {
     price: null,
     cover: "",
   });
+  const [file, setFile] = useState(null);
   const [error,setError] = useState(false)
 
   const navigate = useNavigate();
@@ -17,10 +18,22 @@ const Add = () => {
     setBook((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
   const handleClick = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8800/books", book);
+      const formData = new FormData();
+      formData.append("title", book.title);
+      formData.append("desc", book.desc);
+      formData.append("price", book.price);
+      if (file) {
+        formData.append("cover", file);
+      }
+
+      await axios.post("http://localhost:8800/books", formData);
       navigate("/");
     } catch (err) {
       console.log(err);
@@ -51,10 +64,9 @@ const Add = () => {
         onChange={handleChange}
       />
       <input
-        type="text"
-        placeholder="Book cover"
+        type="file"
         name="cover"
-        onChange={handleChange}
+        onChange={handleFileChange}
       />
       <button onClick={handleClick}>Add</button>
       {error && "Something went wrong!"}
